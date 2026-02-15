@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Radhe Radhe Chant Counter - Track your spiritual practice">
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Radhe Radhe">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <title>Radhe Radhe - Chant Counter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 25%, #fed7aa 50%, #fdba74 75%, #fb923c 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .counter-display {
+            background: linear-gradient(135deg, #fed7aa 0%, #fde68a 100%);
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 30px;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.1),
+                0 0 30px rgba(249, 115, 22, 0.2);
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .counter-display.pulse {
+            animation: counterPulse 0.5s ease;
+        }
+
+        @keyframes counterPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 
+                    inset 0 2px 10px rgba(0, 0, 0, 0.1),
+                    0 0 30px rgba(249, 115, 22, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 
+                    inset 0 2px 10px rgba(0, 0, 0, 0.1),
+                    0 0 50px rgba(249, 115, 22, 0.5);
+            }
+        }
+
+        .counter-label {
+            color: #6b7280;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .count-number {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #ea580c;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-count {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            padding: 25px 30px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-count:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-count:active {
+            transform: translateY(0);
+        }
+
+        .ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(249, 115, 22, 0.6);
+            pointer-events: none;
+            transform: scale(0);
+            animation: ripple-animation 0.8s ease-out;
+            z-index: 999;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .btn-reset {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-reset:hover {
+            background: #e5e7eb;
+        }
+
+        .milestone {
+            margin-top: 20px;
+            text-align: center;
+            color: #ea580c;
+            font-weight: 600;
+            font-size: 0.95rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideUp 0.5s ease;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-btn {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .install-btn:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        }
+
+        .close-install {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reset-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .popup-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotateY(0deg);
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #f97316, #ea580c, #dc2626, #f97316);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 
+                0 0 30px rgba(249, 115, 22, 0.9),
+                0 0 60px rgba(249, 115, 22, 0.7),
+                0 15px 40px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            font-family: 'Arial', sans-serif;
+            filter: drop-shadow(0 10px 20px rgba(249, 115, 22, 0.6));
+        }
+
+        .popup-text.animate {
+            animation: popup3D 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popup3D {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotateY(0deg) rotateX(0deg) rotateZ(-45deg);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1.5) rotateY(90deg) rotateX(15deg) rotateZ(0deg);
+                opacity: 1;
+            }
+            40% {
+                transform: translate(-50%, -50%) scale(1.3) rotateY(180deg) rotateX(-10deg) rotateZ(10deg);
+                opacity: 1;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.2) rotateY(270deg) rotateX(5deg) rotateZ(-5deg);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(1.1) rotateY(360deg) rotateX(0deg) rotateZ(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.3) rotateY(405deg) rotateX(0deg) rotateZ(15deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .count-number {
+                font-size: 4rem;
+            }
+
+            .btn-count {
+                font-size: 1.1rem;
+                padding: 20px 25px;
+            }
+
+            .popup-text {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Chant Counter</h1>
+            <p class="subtitle">Track your spiritual practice</p>
+        </div>
+
+        <div class="counter-display">
+            <div class="counter-label">Count</div>
+            <div class="count-number" id="countDisplay">0</div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-count" id="countBtn">
+                Tap to Count
+            </button>
+
+            <button class="btn-reset" onclick="resetCount()">
+                <svg class="reset-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Reset Counter
+            </button>
+        </div>
+
+        <div id="milestone"></div>
+    </div>
+
+    <!-- 3D Popup Text -->
+    <div class="popup-text" id="popupText">राधे राधे</div>
+
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <span>📱 Install Radhe Radhe app on your home screen!</span>
+        <button class="install-btn" id="installBtn">Install</button>
+        <button class="close-install" id="closeInstall">✕</button>
+    </div>
+
+    <script>
+        let count = 0;
+        let deferredPrompt;
+        
+        // PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+        });
+
+        document.getElementById('closeInstall').addEventListener('click', () => {
+            document.getElementById('installPrompt').classList.remove('show');
+        });
+
+        // Hide install prompt if already installed
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('installPrompt').classList.remove('show');
+            console.log('PWA installed successfully!');
+        });
+        
+        // Create temple bell sound using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTempleBell() {
+            const now = audioContext.currentTime;
+            
+            // Main bell tone - deeper and more resonant
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.frequency.setValueAtTime(520, now); // Temple bell frequency
+            oscillator.frequency.exponentialRampToValueAtTime(480, now + 0.1);
+            oscillator.frequency.exponentialRampToValueAtTime(420, now + 0.8);
+            
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.4, now + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(now);
+            oscillator.stop(now + 2);
+            
+            // Higher harmonic for brightness
+            const oscillator2 = audioContext.createOscillator();
+            const gainNode2 = audioContext.createGain();
+            
+            oscillator2.frequency.setValueAtTime(1560, now);
+            oscillator2.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            
+            gainNode2.gain.setValueAtTime(0, now);
+            gainNode2.gain.linearRampToValueAtTime(0.2, now + 0.02);
+            gainNode2.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+            
+            oscillator2.connect(gainNode2);
+            gainNode2.connect(audioContext.destination);
+            
+            oscillator2.start(now);
+            oscillator2.stop(now + 1.5);
+            
+            // Mid harmonic for richness
+            const oscillator3 = audioContext.createOscillator();
+            const gainNode3 = audioContext.createGain();
+            
+            oscillator3.frequency.setValueAtTime(780, now);
+            oscillator3.frequency.exponentialRampToValueAtTime(650, now + 0.5);
+            
+            gainNode3.gain.setValueAtTime(0, now);
+            gainNode3.gain.linearRampToValueAtTime(0.25, now + 0.02);
+            gainNode3.gain.exponentialRampToValueAtTime(0.01, now + 1.8);
+            
+            oscillator3.connect(gainNode3);
+            gainNode3.connect(audioContext.destination);
+            
+            oscillator3.start(now);
+            oscillator3.stop(now + 1.8);
+        }
+        
+        function createRipple(event) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            
+            const rect = event.target.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = event.clientX - size / 2 + 'px';
+            ripple.style.top = event.clientY - size / 2 + 'px';
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 800);
+        }
+        
+        function show3DPopup() {
+            const popup = document.getElementById('popupText');
+            
+            popup.classList.remove('animate');
+            void popup.offsetWidth;
+            popup.classList.add('animate');
+            
+            setTimeout(() => {
+                popup.classList.remove('animate');
+            }, 1200);
+        }
+        
+        function pulseCounter() {
+            const counter = document.querySelector('.counter-display');
+            counter.classList.add('pulse');
+            setTimeout(() => {
+                counter.classList.remove('pulse');
+            }, 500);
+        }
+
+        function incrementCount(event) {
+            count++;
+            updateDisplay();
+            playTempleBell();
+            show3DPopup();
+            pulseCounter();
+            if (event) createRipple(event);
+        }
+
+        function resetCount() {
+            if (count > 0 && confirm('Are you sure you want to reset the counter?')) {
+                count = 0;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('countDisplay').textContent = count;
+            updateMilestone();
+        }
+
+        function updateMilestone() {
+            const milestoneDiv = document.getElementById('milestone');
+            
+            if (count === 0) {
+                milestoneDiv.innerHTML = '';
+            } else if (count === 108) {
+                milestoneDiv.innerHTML = '<div class="milestone">🙏 Mala completed! Radhe Radhe!</div>';
+            } else if (count === 1000) {
+                milestoneDiv.innerHTML = '<div class="milestone">✨ 1000 chants milestone! Jai Shri Krishna!</div>';
+            } else if (count % 100 === 0) {
+                milestoneDiv.innerHTML = `<div class="milestone">🎉 ${count} chants! Keep going!</div>`;
+            } else {
+                milestoneDiv.innerHTML = '';
+            }
+        }
+
+        // Add click event listener to button for ripple effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const countBtn = document.getElementById('countBtn');
+            countBtn.addEventListener('click', incrementCount);
+        });
+
+        // Keyboard support (spacebar to count)
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                incrementCount();
+            }
+        });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registered:', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
